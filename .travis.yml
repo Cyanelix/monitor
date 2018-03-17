@@ -1,0 +1,35 @@
+language: java
+
+services:
+  - docker
+
+sudo: false
+
+install: true
+
+addons:
+    sonarqube:
+        organization: "davecpayne-github"
+        branches:
+            - master
+        token:
+            secure: "pqOg8yoL2lDhpzqFoV2OzKv0vmJpJ0Z9eBDIpg7Qzujxl+PJU72atphewBwH4096c+l6Mq5SbmaZKxRUef+H75rFxdTMA06gH9UsM4Gqn/4d0bFzjZwIb2vwBLFAJIwNzLYNhoUMI+TC8WfZbU2IgzM8ZkidKHfC07l/5ue3hZ+tox9nnRbUZfoJyL2ABl8p/Epk5xY8h3u4xORjnxKqXdQsj5rvt899iasKb8Qt+Uf1MOx30RDpvo6HP/1et6LietTXVNQVR9sfkhqvH8Cn/rzqMOzHhIDmzhIHliy949APcF0gpcnMxBjGT6GtmDR6P7TsP4jCW4xszPPkfsGeFrttJu0Qzpipy36/WLnqklV1zEejWw9YLosJibeB6lHrA9YtgRr2RNwou02d1IrbSopEmSCl20LPs60rgvV+2hiMrfk46Z3GJMhE9CzYYDdYmGSAMwDYjZHrbGXqIpV035jbysRqw4nBecS1ShuJ6la5kdTMWeAVf6tQ00eYFaAl7Ricjz43dcU2VwSOjAHFmGE44t2MJAVGeaMhdD2HtXkkzTU8yF1zDN5waXno7NjsWzjBnYezvbaNFwVrDb7jwW7jgsQQiNqkd/YJtcXPVzLbb+SQ23x3c+iV8OL6wiNjp1drEG00O2QJKlQ8OZP8b5b+/lQs1v0iASJ5uaOewZs="
+
+jdk:
+  - oraclejdk8
+
+script:
+  - mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
+  - docker build . -t cyanelix/monitor
+
+cache:
+    directories:
+        - '$HOME/.m2/repository'
+        - '$HOME/.sonar/cache'
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker push cyanelix/monitor;
+    fi
+
