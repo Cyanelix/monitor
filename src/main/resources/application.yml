@@ -1,0 +1,11 @@
+---
+monitored:
+  endpoints:
+    - http://example.com
+    - http://www.example.com
+    - http://localhost.com/foo
+
+logging:
+  level:
+    com:
+      cyanelix: debug
