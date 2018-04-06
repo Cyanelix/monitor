@@ -1,6 +1,5 @@
 package com.cyanelix.monitor.model;
 
-import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
