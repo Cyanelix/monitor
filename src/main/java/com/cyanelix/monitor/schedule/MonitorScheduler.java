@@ -3,6 +3,7 @@ package com.cyanelix.monitor.schedule;
 import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import com.cyanelix.monitor.model.MonitoringResult;
 import com.cyanelix.monitor.service.MonitorService;
+import com.cyanelix.monitor.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,13 @@ public class MonitorScheduler {
 
     private final MonitoredEndpoints monitoredEndpoints;
     private final MonitorService monitorService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public MonitorScheduler(MonitoredEndpoints monitoredEndpoints, MonitorService monitorService) {
+    public MonitorScheduler(MonitoredEndpoints monitoredEndpoints, MonitorService monitorService, NotificationService notificationService) {
         this.monitoredEndpoints = monitoredEndpoints;
         this.monitorService = monitorService;
+        this.notificationService = notificationService;
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -34,5 +37,6 @@ public class MonitorScheduler {
 
     private void notify(MonitoringResult monitoringResult) {
         LOG.warn("An HTTP error code has been returned: {}", monitoringResult.getHttpStatus());
+        notificationService.sendNotification();
     }
 }
