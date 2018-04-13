@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
@@ -38,45 +37,47 @@ public class MonitorSchedulerTest {
         new MonitorScheduler(monitoredEndpoints, monitorService, notificationService).monitor();
 
         // Then...
-        verify(monitorService, never()).makeRequest(any(), any());
-        verify(notificationService, never()).sendNotification();
+        verify(monitorService, never()).makeRequest(any());
+        verify(notificationService, never()).sendNotification(any());
     }
 
     @Test
     public void endpointReturnsSuccess_serviceCalledOnce_noNotifications() {
         // Given...
-        String url = "http://example.com";
+        MonitoredEndpoints.Check check = new MonitoredEndpoints.Check();
+        check.setExpectedStatus(HttpStatus.OK);
 
         MonitoredEndpoints monitoredEndpoints = new MonitoredEndpoints();
-        monitoredEndpoints.setEndpoints(Collections.singletonList(url));
+        monitoredEndpoints.setChecks(Collections.singletonList(check));
 
-        given(monitorService.makeRequest(url, HttpMethod.HEAD))
-                .willReturn(new MonitoringResult(url, HttpMethod.HEAD, HttpStatus.OK));
+        given(monitorService.makeRequest(check))
+                .willReturn(new MonitoringResult(check, HttpStatus.OK, ""));
 
         // When...
         new MonitorScheduler(monitoredEndpoints, monitorService, notificationService).monitor();
 
         // Then...
-        verify(monitorService).makeRequest(url, HttpMethod.HEAD);
-        verify(notificationService, never()).sendNotification();
+        verify(monitorService).makeRequest(check);
+        verify(notificationService, never()).sendNotification(any());
     }
 
     @Test
     public void endpointReturnsError_serviceCalledOnce_oneNotification() {
         // Given...
-        String url = "http://example.com/error";
+        MonitoredEndpoints.Check check = new MonitoredEndpoints.Check();
 
         MonitoredEndpoints monitoredEndpoints = new MonitoredEndpoints();
-        monitoredEndpoints.setEndpoints(Collections.singletonList(url));
+        monitoredEndpoints.setChecks(Collections.singletonList(check));
 
-        given(monitorService.makeRequest(url, HttpMethod.HEAD))
-                .willReturn(new MonitoringResult(url, HttpMethod.HEAD, HttpStatus.INTERNAL_SERVER_ERROR));
+        given(monitorService.makeRequest(check))
+                .willReturn(new MonitoringResult(check, HttpStatus.INTERNAL_SERVER_ERROR, ""));
+
+        MonitoringResult expectedResult = new MonitoringResult(check, HttpStatus.INTERNAL_SERVER_ERROR, "");
 
         // When...
         new MonitorScheduler(monitoredEndpoints, monitorService, notificationService).monitor();
 
         // Then...
-        verify(monitorService).makeRequest(url, HttpMethod.HEAD);
-        verify(notificationService).sendNotification();
+        verify(notificationService).sendNotification(expectedResult);
     }
 }

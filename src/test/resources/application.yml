@@ -9,17 +9,8 @@ monitored:
       method: GET
       expectedStatus: OK
       recipients: to@example.com
-    - url: http://localhost/foo
-      method: POST
-      expectedStatus: OK
-      recipients:
-        - to@example.com
-
-logging:
-  level:
-    com:
-      cyanelix: debug
 
 spring:
   mail:
     host: smtp.example.com
+

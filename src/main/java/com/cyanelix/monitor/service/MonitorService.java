@@ -1,11 +1,12 @@
 package com.cyanelix.monitor.service;
 
+import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import com.cyanelix.monitor.model.MonitoringResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -21,16 +22,22 @@ public class MonitorService {
         this.restTemplate = restTemplate;
     }
 
-    public MonitoringResult makeRequest(String url, HttpMethod httpMethod) {
-        LOG.debug("Sending a {} request to {}", httpMethod, url);
+    public MonitoringResult makeRequest(MonitoredEndpoints.Check check) {
+        LOG.debug("Sending a {} request to {}", check.getMethod(), check.getUrl());
 
-        HttpStatus status;
+        HttpStatus status = null;
+        String body;
         try {
-            status = restTemplate.exchange(url, httpMethod, null, Object.class).getStatusCode();
+            ResponseEntity<String> entity = restTemplate.exchange(check.getUrl(), check.getMethod(), null, String.class);
+            status = entity.getStatusCode();
+            body = entity.getBody();
         } catch (HttpStatusCodeException statusCodeException) {
             status = statusCodeException.getStatusCode();
+            body = statusCodeException.getResponseBodyAsString();
+        } catch (Exception ex) {
+            body = ex.getMessage();
         }
 
-        return new MonitoringResult(url, httpMethod, status);
+        return new MonitoringResult(check, status, body);
     }
 }

@@ -7,7 +7,6 @@ import com.cyanelix.monitor.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,15 +27,15 @@ public class MonitorScheduler {
 
     @Scheduled(fixedDelay = 60000)
     public void monitor() {
-        monitoredEndpoints.getEndpoints()
+        monitoredEndpoints.getChecks()
                 .parallelStream()
-                .map(endpoint -> monitorService.makeRequest(endpoint, HttpMethod.HEAD))
+                .map(monitorService::makeRequest)
                 .filter(MonitoringResult::isError)
                 .forEach(this::notify);
     }
 
     private void notify(MonitoringResult monitoringResult) {
-        LOG.warn("An HTTP error code has been returned: {}", monitoringResult.getHttpStatus());
-        notificationService.sendNotification();
+        LOG.debug("An unexpected HTTP status code has been returned: {}", monitoringResult.getHttpStatus());
+        notificationService.sendNotification(monitoringResult);
     }
 }
