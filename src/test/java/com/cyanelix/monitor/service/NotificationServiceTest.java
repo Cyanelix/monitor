@@ -50,4 +50,22 @@ public class NotificationServiceTest {
         assertThat(message.getText())
                 .isEqualTo("400 (Bad Request) error detected for a GET request to http://example.com\n\nBody:\nTest body");
     }
+
+    @Test
+    public void checksCount_sendDailyDigest_messageSent() {
+        // Given...
+        int checksCount = 3;
+
+        // When...
+        notificationService.sendDailyDigest(new String[] {"digest@example.com"}, checksCount);
+
+        // Then...
+        ArgumentCaptor<SimpleMailMessage> messageArgumentCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(javaMailSender).send(messageArgumentCaptor.capture());
+
+        SimpleMailMessage message = messageArgumentCaptor.getValue();
+        assertThat(message.getTo()).containsExactly("digest@example.com");
+        assertThat(message.getSubject()).isEqualTo("Monitor Daily Update");
+        assertThat(message.getText()).isEqualTo("3 checks performed today");
+    }
 }

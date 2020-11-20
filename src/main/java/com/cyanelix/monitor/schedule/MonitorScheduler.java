@@ -1,5 +1,6 @@
 package com.cyanelix.monitor.schedule;
 
+import com.cyanelix.monitor.configuration.DigestConfiguration;
 import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import com.cyanelix.monitor.model.MonitoringResult;
 import com.cyanelix.monitor.service.MonitorService;
@@ -15,12 +16,14 @@ public class MonitorScheduler {
     private static final Logger LOG = LoggerFactory.getLogger(MonitorScheduler.class);
 
     private final MonitoredEndpoints monitoredEndpoints;
+    private final DigestConfiguration digestConfiguration;
     private final MonitorService monitorService;
     private final NotificationService notificationService;
 
     @Autowired
-    public MonitorScheduler(MonitoredEndpoints monitoredEndpoints, MonitorService monitorService, NotificationService notificationService) {
+    public MonitorScheduler(MonitoredEndpoints monitoredEndpoints, DigestConfiguration digestConfiguration, MonitorService monitorService, NotificationService notificationService) {
         this.monitoredEndpoints = monitoredEndpoints;
+        this.digestConfiguration = digestConfiguration;
         this.monitorService = monitorService;
         this.notificationService = notificationService;
     }
@@ -32,6 +35,13 @@ public class MonitorScheduler {
                 .map(monitorService::makeRequest)
                 .filter(MonitoringResult::isError)
                 .forEach(this::notify);
+    }
+
+    @Scheduled(fixedDelay = 86400000)
+    public void dailyDigest() {
+        int checksCount = monitorService.getChecksCount();
+        notificationService.sendDailyDigest(digestConfiguration.getRecipients(), checksCount);
+        monitorService.resetChecksCount();
     }
 
     private void notify(MonitoringResult monitoringResult) {

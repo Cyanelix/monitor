@@ -23,4 +23,13 @@ public class NotificationService {
 
         mailSender.send(message);
     }
+
+    public void sendDailyDigest(String[] digestRecipients, int checksCount) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(digestRecipients);
+        message.setSubject("Monitor Daily Update");
+        message.setText(checksCount + " checks performed today");
+
+        mailSender.send(message);
+    }
 }

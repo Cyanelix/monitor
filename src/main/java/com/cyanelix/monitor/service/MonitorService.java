@@ -11,19 +11,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Service
 public class MonitorService {
     private static final Logger LOG = LoggerFactory.getLogger(MonitorService.class);
 
     private final RestTemplate restTemplate;
+    private final AtomicInteger checksCount;
 
     @Autowired
     public MonitorService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+        this.checksCount = new AtomicInteger(0);
     }
 
     public MonitoringResult makeRequest(MonitoredEndpoints.Check check) {
         LOG.debug("Sending a {} request to {}", check.getMethod(), check.getUrl());
+
+        checksCount.incrementAndGet();
 
         HttpStatus status = null;
         String body;
@@ -39,5 +45,13 @@ public class MonitorService {
         }
 
         return new MonitoringResult(check, status, body);
+    }
+
+    public void resetChecksCount() {
+        checksCount.lazySet(0);
+    }
+
+    public int getChecksCount() {
+        return checksCount.get();
     }
 }

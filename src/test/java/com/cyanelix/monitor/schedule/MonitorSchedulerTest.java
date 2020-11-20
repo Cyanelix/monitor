@@ -1,5 +1,6 @@
 package com.cyanelix.monitor.schedule;
 
+import com.cyanelix.monitor.configuration.DigestConfiguration;
 import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import com.cyanelix.monitor.model.MonitoringResult;
 import com.cyanelix.monitor.service.MonitorService;
@@ -23,6 +24,9 @@ public class MonitorSchedulerTest {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
+    private DigestConfiguration digestConfiguration;
+
+    @Mock
     private MonitorService monitorService;
 
     @Mock
@@ -34,7 +38,7 @@ public class MonitorSchedulerTest {
         MonitoredEndpoints monitoredEndpoints = new MonitoredEndpoints();
 
         // When...
-        new MonitorScheduler(monitoredEndpoints, monitorService, notificationService).monitor();
+        new MonitorScheduler(monitoredEndpoints, digestConfiguration, monitorService, notificationService).monitor();
 
         // Then...
         verify(monitorService, never()).makeRequest(any());
@@ -54,7 +58,7 @@ public class MonitorSchedulerTest {
                 .willReturn(new MonitoringResult(check, HttpStatus.OK, ""));
 
         // When...
-        new MonitorScheduler(monitoredEndpoints, monitorService, notificationService).monitor();
+        new MonitorScheduler(monitoredEndpoints, digestConfiguration, monitorService, notificationService).monitor();
 
         // Then...
         verify(monitorService).makeRequest(check);
@@ -75,9 +79,27 @@ public class MonitorSchedulerTest {
         MonitoringResult expectedResult = new MonitoringResult(check, HttpStatus.INTERNAL_SERVER_ERROR, "");
 
         // When...
-        new MonitorScheduler(monitoredEndpoints, monitorService, notificationService).monitor();
+        new MonitorScheduler(monitoredEndpoints, digestConfiguration, monitorService, notificationService).monitor();
 
         // Then...
         verify(notificationService).sendNotification(expectedResult);
+    }
+
+    @Test
+    public void sendDigest_resetsCount() {
+        // Given...
+        String[] recipients = {"digest@example.com"};
+
+        DigestConfiguration digestConfiguration = new DigestConfiguration();
+        digestConfiguration.setRecipients(recipients);
+
+        given(monitorService.getChecksCount()).willReturn(3);
+
+        // When...
+        new MonitorScheduler(new MonitoredEndpoints(), digestConfiguration, monitorService, notificationService).dailyDigest();
+
+        // Then...
+        verify(notificationService).sendDailyDigest(recipients, 3);
+        verify(monitorService).resetChecksCount();
     }
 }

@@ -15,6 +15,9 @@ monitored:
       recipients:
         - to@example.com
 
+digest:
+  recipients: digest@example.com
+
 logging:
   level:
     com:

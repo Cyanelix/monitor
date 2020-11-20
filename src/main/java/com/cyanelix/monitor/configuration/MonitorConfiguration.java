@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableConfigurationProperties(MonitoredEndpoints.class)
+@EnableConfigurationProperties({MonitoredEndpoints.class, DigestConfiguration.class})
 @EnableScheduling
 public class MonitorConfiguration {
     @Bean

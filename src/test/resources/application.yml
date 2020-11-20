@@ -9,8 +9,28 @@ monitored:
       method: GET
       expectedStatus: OK
       recipients: to@example.com
+    - url: http://localhost/foo
+      method: POST
+      expectedStatus: OK
+      recipients:
+        - davecpayne@gmail.com
+
+digest:
+  recipients: digest@example.com
+
+logging:
+  level:
+    com:
+      cyanelix: debug
 
 spring:
   mail:
-    host: smtp.example.com
-
+    host: smtp.gmail.com
+    port: 587
+    username: cyanelixmonitor@gmail.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

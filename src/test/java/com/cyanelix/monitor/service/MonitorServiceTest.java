@@ -14,9 +14,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 public class MonitorServiceTest {
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    private MonitorService monitorService = new MonitorService(restTemplate);
+    private final MonitorService monitorService = new MonitorService(restTemplate);
 
     @Test
     public void makeOKHeadRequest_getOKStatusCodeWithNullBody() {
@@ -40,6 +40,7 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getHttpStatus()).isEqualTo(HttpStatus.OK);
         assertThat(monitoringResult.getBody()).isNull();
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
     }
 
     @Test
@@ -64,6 +65,7 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getHttpStatus()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(monitoringResult.getBody()).isNull();
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
     }
 
     @Test
@@ -88,6 +90,7 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getHttpStatus()).isEqualTo(HttpStatus.OK);
         assertThat(monitoringResult.getBody()).isEqualTo("Test content");
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
     }
 
     @Test
@@ -112,6 +115,7 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(monitoringResult.getBody()).isEmpty();
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
     }
 
     @Test
@@ -136,6 +140,7 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getHttpStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(monitoringResult.getBody()).isEmpty();
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
     }
 
     @Test
@@ -160,6 +165,7 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getHttpStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(monitoringResult.getBody()).isEqualTo("Test content");
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
     }
 
     @Test
@@ -175,5 +181,32 @@ public class MonitorServiceTest {
         // Then...
         assertThat(monitoringResult.getBody()).isEqualTo("I/O error on HEAD request for \"http://localhost/-1\": Connection refused (Connection refused); nested exception is java.net.ConnectException: Connection refused (Connection refused)");
         assertThat(monitoringResult.getHttpStatus()).isNull();
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void makeRequest_resetChecksCount() {
+        // Given...
+        String url = "http://example.com";
+        HttpMethod httpMethod = HttpMethod.HEAD;
+
+        MonitoredEndpoints.Check check = new MonitoredEndpoints.Check();
+        check.setUrl(url);
+        check.setMethod(httpMethod);
+
+        MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+        mockServer
+                .expect(requestTo(url))
+                .andExpect(method(httpMethod))
+                .andRespond(withSuccess());
+
+        monitorService.makeRequest(check);
+        assertThat(monitorService.getChecksCount()).isEqualTo(1);
+
+        // When...
+        monitorService.resetChecksCount();
+
+        // Then...
+        assertThat(monitorService.getChecksCount()).isZero();
     }
 }
