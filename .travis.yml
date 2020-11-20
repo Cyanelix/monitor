@@ -16,7 +16,7 @@ addons:
             secure: "Kk1EmAbJ2lshBFHCW7Fx++qGg7NGAkLFYF2JHZKLV1jH/mA6fLdIzO4Yg2I4a2mOC7UNEOAesl52EZ58FQtfiijNTgmQ72bbmH18aogAgmUFxspQbiHXpPngSTU3B0w4RW0DCRbcKVp+gDvSkkPXqJPLrZJj6Y2Mwr353KDi3zyDYq6s/Siy1rJau65gDObGHC42rSD2MnV5DKtFzmwoGQdjv25XEArFf6WsT2DOvQN6pGzuFDjDKuV0zih/wBr+j7AM9u7dJJPI7Hypi7mLTKAFWuCr1zwPNDDbQCbttViq+N+MRjjtweh7KeKVNn58ZdeHVSjDwztipVgcQsO4f8uwoOQ3Pfosy6Hs/wiOG9sup8agzClEIj496Ro1zwa60arWq0L4CR7UiDjWutmmth8NeWw6AvhezkW6j/Tr5xwTFJmYivtdv82IJzKQ/4U0i90pnvCKLJoqgL4CR5tG7ChITiWYKlCdcUlvYBUd42BJtEFL7H/XTyqWaZSkqmwqJzS1zB81PtHNU3Q4xPWXz4CtLxsckmy+ISGC3ajhUTyaaY3575oYeapqcY6iYKbmR8k17vdOjhrR6yP3xmu/uMyxXa97yCxvVYxaZlc7wvNZXkOfafC3x4BA/v87npPHteA+3Vjimw7CfkEM/0TcLFUltz5hmViv55/mo8j9GDw="
 
 jdk:
-  - oraclejdk8
+  - oraclejdk9
 
 script:
   - mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
