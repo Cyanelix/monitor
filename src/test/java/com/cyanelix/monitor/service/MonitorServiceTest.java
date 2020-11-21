@@ -2,7 +2,7 @@ package com.cyanelix.monitor.service;
 
 import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import com.cyanelix.monitor.model.MonitoringResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;

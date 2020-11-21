@@ -5,11 +5,10 @@ import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import com.cyanelix.monitor.model.MonitoringResult;
 import com.cyanelix.monitor.service.MonitorService;
 import com.cyanelix.monitor.service.NotificationService;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
@@ -19,10 +18,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class MonitorSchedulerTest {
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
-
     @Mock
     private DigestConfiguration digestConfiguration;
 

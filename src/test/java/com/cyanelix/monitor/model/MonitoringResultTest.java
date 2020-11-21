@@ -2,7 +2,7 @@ package com.cyanelix.monitor.model;
 
 import com.cyanelix.monitor.configuration.MonitoredEndpoints;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
